@@ -1,0 +1,52 @@
+name: Build and Deploy
+
+on:
+  push:
+    tags:
+      - 'news-android@*.*.*'
+      - 'news-ios@*.*.*'
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    environment: release
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: yarn
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Create code-signing.pem
+        env:
+          CODE_SIGNING_KEY: ${{ secrets.CODE_SIGNING_KEY }}
+        run: echo "$CODE_SIGNING_KEY" > code-signing.pem
+
+      - name: Run Android bundle script
+        if: contains(github.ref, 'news-android@')
+        run: yarn bundle:android
+
+      - name: Run iOS bundle script
+        if: contains(github.ref, 'news-ios@')
+        run: yarn bundle:ios
+
+      - name: Delete code-signing.pem
+        run: rm code-signing.pem
+
+      - name: Release
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: 'build/outputs/**/*.bundle,build/outputs/**/*.map'
+          artifactErrorsFailBuild: true
+          skipIfReleaseExists: true
+          name: ${{ github.ref_name }}
+          tag: ${{ github.ref }}
