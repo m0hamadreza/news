@@ -48,7 +48,15 @@ export default Repack.defineRspackConfig(({mode}) => {
         exposes: {
           './App': './src/navigation/MainNavigator',
         },
-        shared: getSharedDependencies({eager: STANDALONE}),
+        shared: {
+          ...getSharedDependencies({eager: STANDALONE}),
+          // Single shared counter store instance across mini-apps.
+          'super-app-showcase-sdk/lib/counterStore': {
+            singleton: true,
+            eager: STANDALONE,
+            requiredVersion: false,
+          },
+        },
       }),
       new Repack.plugins.CodeSigningPlugin({
         enabled: mode === 'production',

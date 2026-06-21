@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useCallback, useRef} from 'react';
 import {Alert, FlatList, ScrollView, StyleSheet, View} from 'react-native';
 import {
   Card,
@@ -8,9 +8,11 @@ import {
   Title,
   Paragraph,
 } from 'react-native-paper';
+import {BottomSheetModal, BottomSheetView} from '@gorhom/bottom-sheet';
 import recentNews from '../data/recentNews.json';
 import recentArticles from '../data/recentArticles.json';
 import trending from '../data/trending.json';
+import Counter from '../components/Counter';
 
 const renderArticle = ({item}: any) => (
   <Card mode="contained" style={styles.cardWidth}>
@@ -27,18 +29,37 @@ const renderDivider = () => <Divider style={styles.divider} />;
 const showNotImplementedAlert = () => Alert.alert('Not implemented yet');
 
 const HomeScreen = () => {
+  const trendingSheetRef = useRef<BottomSheetModal>(null);
+
+  const openTrendingSheet = useCallback(() => {
+    trendingSheetRef.current?.present();
+  }, []);
+
   return (
     <ScrollView
       contentInsetAdjustmentBehavior="automatic"
       style={styles.container}>
+      <Counter />
       <View style={styles.header}>
         <Text variant="titleLarge" style={styles.headerTitle}>
           Trending
         </Text>
-        <Button mode="contained-tonal" onPress={showNotImplementedAlert}>
+        <Button mode="contained-tonal" onPress={openTrendingSheet}>
           See All
         </Button>
       </View>
+      <BottomSheetModal ref={trendingSheetRef} snapPoints={['50%', '90%']}>
+        <BottomSheetView style={styles.sheetContent}>
+          <Text variant="titleLarge" style={styles.sheetTitle}>
+            All Trending
+          </Text>
+          {trending.data.map((item: any) => (
+            <Text key={item.id ?? item.title} style={styles.sheetItem}>
+              {item.title}
+            </Text>
+          ))}
+        </BottomSheetView>
+      </BottomSheetModal>
       <FlatList
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -106,6 +127,17 @@ const styles = StyleSheet.create({
   },
   cardWidth: {
     width: 270,
+  },
+  sheetContent: {
+    flex: 1,
+    paddingHorizontal: 16,
+    gap: 12,
+  },
+  sheetTitle: {
+    marginBottom: 8,
+  },
+  sheetItem: {
+    fontSize: 16,
   },
 });
 

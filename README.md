@@ -1,45 +1,113 @@
-# News mini-app showcase
+# News
 
-This is mini app for reading news and articles. It's a part of [Super App Showcase](https://github.com/callstack/super-app-showcase), demonstrating compatibility of an independent repository with a super app powered by Module Federation.
+`news` is a [React Native](https://reactnative.dev) **mini-app** within the Super App Showcase — a news/article reading experience. It is built as a [Module Federation](https://module-federation.io) remote using [Re.Pack](https://re-pack.dev) (Rspack), loaded at runtime by the host shell, or run on its own in standalone mode for local development.
 
-News exposes `MainNavigator`. `MainNavigator` is News app itself. News app uses auth logic and UI (`SignInScreen`, `AccountScreen`) from Auth remote module, so we suggest to run Auth dev server to prevent issues with News app. If Auth dev server will no be run, News app will not work as standalone app.
+## What it exposes
 
-## Getting started
+The Rspack config registers a federated container named `news` and exposes a single module:
 
-To run News app without changing or removing auth logic you need to run Auth dev server or deploy bundle and provide url to bundle file in `createURLResolver` function in `index.js` file. Otherwise you can remove auth logic from News app. To do this you need to remove `SignInScreen` and `AccountScreen` from `MainNavigator`, `AuthProvider` from App and remove Auth remote container from `index.js` file.
+| Key      | Module                          | Description                              |
+| -------- | ------------------------------- | ---------------------------------------- |
+| `./App`  | `./src/navigation/MainNavigator` | Tab-based news app rendered by the host |
 
-## Setup
+- **Container name:** `news`
+- **Remote entry:** `news.container.js.bundle`
+- **Output uniqueName:** `sas-news`
+
+`MainNavigator` wraps a [`TabsNavigator`](src/navigation/TabsNavigator.tsx) with Home, Search, and Account tabs. The app is self-contained — it has no dependency on an Auth remote and runs standalone without other dev servers.
+
+It shares a single [`super-app-showcase-sdk/lib/counterStore`](../superApp/packages/sdk) singleton with the rest of the mini-apps so the shared counter stays in sync across the super app.
+
+## Tech stack
+
+- React Native `0.84.1` / React `19.2.3`
+- [`@callstack/repack`](https://re-pack.dev) `5.2.5` with `@rspack/core` for bundling
+- [`@module-federation/enhanced`](https://module-federation.io) (`ModuleFederationPluginV2`)
+- [React Navigation](https://reactnavigation.org) (`native-stack`) + [`react-native-bottom-tabs`](https://github.com/callstackincubator/react-native-bottom-tabs)
+- [`react-native-paper`](https://reactnativepaper.com) + `react-native-vector-icons` for UI
+- [`zustand`](https://github.com/pmndrs/zustand) for state (shared counter store)
+- [`@gorhom/bottom-sheet`](https://github.com/gorhom/react-native-bottom-sheet) + `react-native-reanimated` / `react-native-gesture-handler` / `react-native-screens`
+
+Production builds are signed via Re.Pack's `CodeSigningPlugin` (`code-signing.pem`).
+
+## Getting Started
+
+> **Note**: Complete the [React Native environment setup](https://reactnative.dev/docs/set-up-your-environment) before proceeding. Requires Node `>= 22`. Package manager is `pnpm@9.15.3`.
 
 Install dependencies:
 
-```
+```sh
 pnpm install
 ```
 
-### Run
+### Step 1: Start the dev server
 
-Start dev server if you need to work as a part of host app. News app server will run on 9001 port:
+`news` runs its Re.Pack dev server on **port 9004** so it doesn't collide with the host (8081):
 
-```
+```sh
 pnpm start
 ```
 
-Or start dev server for News app as a standalone app. It will run News app server will run on 8081 port:
+To run the mini-app **standalone** (eager-loaded shared deps, default port 8081):
 
-```
+```sh
 pnpm start:standalone
 ```
 
-Run iOS or Android app (ios | android):
+The `STANDALONE` env flag flips shared dependencies to `eager` so the bundle can boot without a host providing them.
 
-```
-pnpm <platform>
+### Step 2: Build and run on a device
+
+With the dev server running, in another terminal:
+
+```sh
+# iOS — install pods first (first clone / after native dep changes)
+pnpm pods
+pnpm ios
+
+# Android
+pnpm android
 ```
 
 ### Generate bundle files
 
-Generate iOS or Android bundle files (ios | android):
+```sh
+pnpm bundle           # both platforms
+pnpm bundle:ios       # iOS only
+pnpm bundle:android   # Android only
+```
 
-```
-pnpm bundle:<platform>
-```
+## Project layout
+
+| Path                          | Purpose                                                   |
+| ----------------------------- | --------------------------------------------------------- |
+| `src/App.tsx`                 | App root — providers + `NavigationContainer`              |
+| `src/navigation/`             | `MainNavigator` (exposed), `TabsNavigator`, per-tab stacks |
+| `src/screens/`                | `HomeScreen`, `SearchScreen`, `AccountScreen`             |
+| `src/components/`             | `Counter`, `NavBar`                                       |
+| `src/data/`                   | Mock news/article JSON fixtures                           |
+| `index.js`                    | `AppRegistry` entry point (standalone runs)               |
+| `rspack.config.ts`            | Re.Pack + Module Federation V2 configuration              |
+| `sharedDeps.js`               | Derives the shared dependency map from `package.json`     |
+| `android/` `ios/`             | Native projects                                           |
+
+## Scripts
+
+| Script                   | Description                                          |
+| ------------------------ | ---------------------------------------------------- |
+| `pnpm start`             | Start the dev server on port 9004                    |
+| `pnpm start:standalone`  | Start standalone (eager shared deps) on port 8081    |
+| `pnpm android`           | Build & run on Android                               |
+| `pnpm ios`               | Build & run on iOS                                   |
+| `pnpm pods`              | Install CocoaPods deps (`bundle install` + `pod install`) |
+| `pnpm pods:update`       | Update CocoaPods deps                                |
+| `pnpm bundle[:platform]` | Generate JS bundle(s) for ios/android                |
+| `pnpm lint`              | Run ESLint                                           |
+| `pnpm test`              | Run Jest tests                                       |
+
+## Learn more
+
+- [Re.Pack documentation](https://re-pack.dev/docs)
+- [Module Federation](https://module-federation.io)
+- [React Native](https://reactnative.dev)
+</content>
