@@ -1,6 +1,7 @@
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import * as Repack from '@callstack/repack';
+import {NativeWindPlugin} from '@callstack/repack-plugin-nativewind';
 import rspack from '@rspack/core';
 import getSharedDependencies from './sharedDeps.js';
 
@@ -41,6 +42,7 @@ export default Repack.defineRspackConfig(({mode}) => {
     },
     plugins: [
       new Repack.RepackPlugin(),
+      new NativeWindPlugin(),
       new Repack.plugins.ModuleFederationPluginV2({
         name: 'news',
         filename: 'news.container.js.bundle',
@@ -55,6 +57,14 @@ export default Repack.defineRspackConfig(({mode}) => {
             singleton: true,
             eager: STANDALONE,
             requiredVersion: false,
+          },
+          // Share css-interop runtime (deep imports) so there is ONE NativeWind
+          // StyleSheet registry across host + mini-apps. Prevents style overrides
+          // and the "Cannot update a component while rendering" (CssInterop) warning.
+          'react-native-css-interop/': {
+            singleton: true,
+            eager: STANDALONE,
+            requiredVersion: '*',
           },
         },
       }),

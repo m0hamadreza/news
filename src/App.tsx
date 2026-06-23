@@ -1,5 +1,5 @@
 import React from 'react';
-import {StyleSheet} from 'react-native';
+import {StyleSheet, Text, View} from 'react-native';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import {BottomSheetModalProvider} from '@gorhom/bottom-sheet';
 import {NavigationContainer} from '@react-navigation/native';
@@ -12,6 +12,7 @@ const App = () => {
         <NavigationContainer>
           <MainNavigator />
         </NavigationContainer>
+        
       </BottomSheetModalProvider>
     </GestureHandlerRootView>
   );

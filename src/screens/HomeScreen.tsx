@@ -1,5 +1,12 @@
 import React, {useCallback, useRef} from 'react';
-import {Alert, FlatList, ScrollView, StyleSheet, View} from 'react-native';
+import {
+  Alert,
+  FlatList,
+  ScrollView,
+  StyleSheet,
+  Text as RNText,
+  View,
+} from 'react-native';
 import {
   Card,
   Button,
@@ -41,9 +48,13 @@ const HomeScreen = () => {
       style={styles.container}>
       <Counter />
       <View style={styles.header}>
-        <Text variant="titleLarge" style={styles.headerTitle}>
+        {/* NativeWind smoke test — news (green) */}
+        <View className="self-center rounded-xl bg-green-500 px-4 py-3">
+          <RNText className="font-bold text-white">NativeWind ✓ news (green)</RNText>
+        </View>
+        {/* <Text variant="titleLarge" style={styles.headerTitle}>
           Trending
-        </Text>
+        </Text> */}
         <Button mode="contained-tonal" onPress={openTrendingSheet}>
           See All
         </Button>
