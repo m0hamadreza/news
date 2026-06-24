@@ -49,7 +49,7 @@ const HomeScreen = () => {
       <Counter />
       <View style={styles.header}>
         {/* NativeWind smoke test — news (green) */}
-        <View className="self-center rounded-xl bg-green-500 px-4 py-3">
+        <View className="self-center rounded-xl bg-brand-300 px-4 py-3">
           <RNText className="font-bold text-white">NativeWind ✓ news (green)</RNText>
         </View>
         {/* <Text variant="titleLarge" style={styles.headerTitle}>
