@@ -22,7 +22,22 @@ export default Repack.defineRspackConfig(({mode}) => {
     mode,
     context: __dirname,
     entry: './index.js',
-    resolve: {...Repack.getResolveOptions({enablePackageExports: true})},
+    resolve: {
+      ...Repack.getResolveOptions({enablePackageExports: true}),
+      // Pin singleton-critical packages to this app's copy so the symlinked SDK
+      // doesn't resolve a second physical instance (double-registers native
+      // views, e.g. "two views named RCTText").
+      alias: {
+        react: path.join(__dirname, 'node_modules/react'),
+        'react-native': path.join(__dirname, 'node_modules/react-native'),
+        'react-native-svg': path.join(__dirname, 'node_modules/react-native-svg'),
+        'react-native-css-interop': path.join(
+          __dirname,
+          'node_modules/react-native-css-interop',
+        ),
+        nativewind: path.join(__dirname, 'node_modules/nativewind'),
+      },
+    },
     output: {
       uniqueName: 'sas-news',
     },
@@ -37,7 +52,9 @@ export default Repack.defineRspackConfig(({mode}) => {
           },
           type: 'javascript/auto',
         },
-        ...Repack.getAssetTransformRules({inline: true}),
+        // `svg: 'svgr'` makes `.svg` imports compile to react-native-svg
+        // components (via @svgr/webpack, native:true) — used for shared icons.
+        ...Repack.getAssetTransformRules({inline: true, svg: 'svgr'}),
       ],
     },
     plugins: [

@@ -16,6 +16,7 @@ import {
   Paragraph,
 } from 'react-native-paper';
 import {BottomSheetModal, BottomSheetView} from '@gorhom/bottom-sheet';
+import {Icon} from 'super-app-showcase-sdk/icons';
 import recentNews from '../data/recentNews.json';
 import recentArticles from '../data/recentArticles.json';
 import trending from '../data/trending.json';
@@ -47,6 +48,12 @@ const HomeScreen = () => {
       contentInsetAdjustmentBehavior="automatic"
       style={styles.container}>
       <Counter />
+      {/* Shared SVG icons — color follows the news brand theme via `text-brand-*`. */}
+      <View className="mx-4 mb-2 flex-row items-center gap-4">
+        <Icon name="home" className="text-brand-500" size={28} />
+        <Icon name="heart" className="text-brand-200" size={28} />
+        <Icon name="bell" className="text-brand-700" size={28} />
+      </View>
       <View style={styles.header}>
         {/* NativeWind smoke test — news (green) */}
         <View className="self-center rounded-xl bg-brand-300 px-4 py-3">
